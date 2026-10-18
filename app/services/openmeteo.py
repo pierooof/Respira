@@ -42,14 +42,14 @@ HOURLY = {
 _last_attempt = 0.0
 
 
-def fetch_remote(districts, client=None) -> dict:
-    """Devuelve {slug: {'time': [...], 'eaqi': [...], ...}} (past_days=1 + 5 días de previsión)."""
+def fetch_remote(districts, client=None, past_days: int = 1, forecast_days: int = 5) -> dict:
+    """Devuelve {slug: {'time': [...], 'eaqi': [...], ...}} (por defecto ayer + 5 días de previsión)."""
     params = {
         "latitude": ",".join(str(d.lat) for d in districts),
         "longitude": ",".join(str(d.lon) for d in districts),
         "hourly": ",".join(HOURLY),
-        "past_days": 1,
-        "forecast_days": 5,
+        "past_days": past_days,
+        "forecast_days": forecast_days,
         "timezone": TZ,
     }
     resp = (client or httpx).get(API_URL, params=params, timeout=20)

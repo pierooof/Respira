@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Respira · Aire y polen en Valencia{% endblock %}</title>
+  <meta name="description" content="Calidad del aire y polen en tiempo casi real para los 19 distritos de Valencia, con previsión, histórico y avisos por Telegram.">
+  <meta name="theme-color" content="#f3eee3">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<header class="site-head">
+  <a class="brand" href="{{ url_for('main.index') }}" aria-label="Respira, inicio">
+    <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="3.2" fill="currentColor"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".7"/><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".35"/></svg>
+    <span>Respira</span>
+  </a>
+  <nav>
+    <a href="{{ url_for('main.index') }}">Mapa</a>
+    <a href="{{ url_for('main.districts') }}">Barrios</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('account.account') }}">Mi cuenta</a>
+      <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="link" type="submit">Salir</button>
+      </form>
+    {% else %}
+      <a class="pill" href="{{ url_for('auth.login') }}">Entrar</a>
+    {% endif %}
+  </nav>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flashes" role="status">
+    {% for cat, msg in messages %}<p class="flash {{ cat }}">{{ msg }}</p>{% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="site-foot">
+  <p>Datos de calidad del aire y polen: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CAMS, Copernicus), resolución ≈ 11 km: los valores entre barrios cercanos son parecidos.
+  Mapa © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> · <a href="https://carto.com/attributions" rel="noopener">CARTO</a>. Información orientativa, no sustituye el consejo médico.</p>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

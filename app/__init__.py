@@ -40,7 +40,9 @@ def create_app(overrides: dict | None = None) -> Flask:
 
     n = app.config["TRUSTED_PROXIES"]
     if n > 0:
-        app.wsgi_app = ProxyFix(CloudflareIP(app.wsgi_app), x_for=n, x_proto=n, x_host=n)
+        # x_proto/x_host=1: nos fiamos del último salto (Railway), que sí informa del esquema real;
+        # con x_proto=n, ProxyFix ignoraría una cabecera de un solo valor y habría bucle de redirección.
+        app.wsgi_app = ProxyFix(CloudflareIP(app.wsgi_app), x_for=n, x_proto=1, x_host=1)
 
     db.init_app(app)
     migrate.init_app(app, db)

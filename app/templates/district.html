@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}{{ d.name }} · Respira{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow"><a href="{{ url_for('main.districts') }}">Barrios</a> / Valencia</p>
+  <div class="title-row">
+    <h1>{{ d.name }}</h1>
+    {% if current_user.is_authenticated %}
+    <form method="post" action="{{ url_for('account.toggle_favorite', slug=d.slug) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn {{ 'on' if is_fav }}" type="submit">{{ '★ En favoritos' if is_fav else '☆ Añadir a favoritos' }}</button>
+    </form>
+    {% else %}
+    <a class="btn" href="{{ url_for('auth.login', next=request.path) }}">☆ Entra para guardar favoritos</a>
+    {% endif %}
+  </div>
+</section>
+
+{% if not available %}
+<p class="notice">No se han podido obtener los datos de calidad del aire en este momento. Inténtalo de nuevo en unos minutos.</p>
+{% else %}
+<section class="now">
+  <div class="dial" style="--c: {{ aqi.color }}; --p: {{ [((cur.eaqi or 0) / 120 * 100), 100] | min }}">
+    <div class="dial-inner">
+      <span class="num">{{ cur.eaqi if cur.eaqi is not none else '—' }}</span>
+      <span class="unit">EAQI</span>
+    </div>
+  </div>
+  <div class="now-text">
+    <p class="eyebrow">Calidad del aire ahora</p>
+    <h2 class="level" style="--c: {{ aqi.color }}">{{ aqi.label }}</h2>
+    {% if dominant %}<p>Contaminante dominante: <strong>{{ dominant }}</strong></p>{% endif %}
+    <ul class="advice">
+      {% for a in advice %}<li>{{ a }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="block">
+  <h2>Contaminantes</h2>
+  <div class="tiles">
+    {% for p in pollutants %}
+    <div class="tile"><span class="k">{{ p.name }}</span><span class="v">{{ '%.0f' % p.value if p.value is not none else '—' }}</span><span class="u">µg/m³</span></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <h2>Polen</h2>
+  {% if not has_pollen %}
+  <p class="muted">Ahora mismo no hay datos de polen: fuera de temporada la fuente no publica valores.</p>
+  {% else %}
+  <ul class="pollen-list">
+    {% for r in pollen %}
+    <li style="--c: {{ r.color }}">
+      <span class="pname">{{ r.name }}</span>
+      <span class="bar" aria-hidden="true">{% for i in range(4) %}<i class="{{ 'on' if r.idx is not none and i <= r.idx }}"></i>{% endfor %}</span>
+      <span class="chip">{{ r.label }}</span>
+      <span class="small muted">{{ '%.0f' % r.value + ' gr/m³' if r.value is not none else '' }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="block">
+  <h2>Previsión</h2>
+  <div class="days">
+    {% for day in days %}
+    <div class="day" style="--c: {{ day.aqi.color }}">
+      <span class="dl">{{ day.label }}</span>
+      <span class="dv">{{ day.eaqi if day.eaqi is not none else '—' }}</span>
+      <span class="small">{{ day.aqi.label }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% if has_pollen %}
+  <div class="table-scroll">
+    <table class="pollen-table">
+      <thead><tr><th>Polen</th>{% for day in days %}<th>{{ day.label }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for kind, name in pollen_names.items() %}
+        <tr><th scope="row">{{ name }}</th>
+          {% for day in days %}{% set r = day.pollen[kind] %}<td><span class="chip" style="--c: {{ r.color }}">{{ r.label }}</span></td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="block">
+  <div class="title-row">
+    <h2>Evolución</h2>
+    <label class="select">Magnitud
+      <select id="metric">
+        <option value="eaqi">Índice de calidad del aire</option>
+        <option value="pm10">PM10</option><option value="pm2_5">PM2.5</option>
+        <option value="no2">NO₂</option><option value="o3">O₃</option>
+      </select>
+    </label>
+  </div>
+  <div class="chart-box" id="history" data-url="{{ url_for('main.api_history', slug=d.slug) }}">
+    <canvas id="chart-air" aria-label="Evolución diaria"></canvas>
+  </div>
+  <p class="muted small" id="history-note"></p>
+  <h3>Polen (máximo diario, granos/m³)</h3>
+  <div class="chart-box"><canvas id="chart-pollen" aria-label="Evolución del polen"></canvas></div>
+</section>
+
+{% if current_user.is_authenticated %}
+<section class="block">
+  <h2>Avísame por Telegram</h2>
+  {% if not current_user.telegram_chat_id %}
+    <p class="muted">Primero <a href="{{ url_for('account.account') }}">vincula tu cuenta de Telegram</a> para recibir los avisos.</p>
+  {% endif %}
+  {% include "_alert_form.html" %}
+  {% if alerts %}
+  <ul class="alert-list">
+    {% for a in alerts %}
+    <li>
+      <span>{{ a.describe() }}</span>
+      <form method="post" action="{{ url_for('account.delete_alert', alert_id=a.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="link" type="submit">Quitar</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" crossorigin=""></script>
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

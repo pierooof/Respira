@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Valencia · 19 distritos</p>
+  <h1>El aire de Valencia, <em>barrio a barrio</em>.</h1>
+  <p class="lead">Calidad del aire y polen ahora mismo, con previsión de los próximos días y avisos para quien lo necesita.</p>
+</section>
+
+<section class="map-wrap">
+  <div id="map" data-url="{{ url_for('main.api_map') }}" data-base="{{ url_for('main.index') }}barrio/" role="application" aria-label="Mapa de calidad del aire por distrito"></div>
+  <aside class="rank">
+    <h2>Ahora mismo</h2>
+    <p class="muted small" id="map-status">Cargando datos…</p>
+    <ol id="rank-list" class="rank-list"></ol>
+    <div class="legend" aria-label="Escala del índice europeo de calidad del aire">
+      <span style="--c:#3fd0c4">Buena</span><span style="--c:#7bc96f">Aceptable</span><span style="--c:#f2c94c">Moderada</span>
+      <span style="--c:#f2994a">Mala</span><span style="--c:#c0392b">Muy mala</span><span style="--c:#7b2d8e">Extrema</span>
+    </div>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

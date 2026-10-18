@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta · Respira{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1 style="font-size:2rem">Crear cuenta</h1>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {% for f, ac in [(form.email, 'email'), (form.password, 'new-password'), (form.confirm, 'new-password')] %}
+    <label>{{ f.label.text }} {{ f(autocomplete=ac, required=True) }}
+      {% for e in f.errors %}<span class="field-error">{{ e }}</span>{% endfor %}</label>
+    {% endfor %}
+    <button class="btn primary" type="submit">Crear cuenta</button>
+  </form>
+  <p class="small muted">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Entra</a>.</p>
+</div>
+{% endblock %}

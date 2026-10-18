@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db, login_manager
+from .services import levels
 
 POLLEN_KINDS = ("grass", "olive", "birch", "alder", "mugwort", "ragweed")
 
@@ -96,6 +97,11 @@ class Alert(db.Model):
     last_notified_for = db.Column(db.Date)  # día objetivo ya avisado: evita duplicados
     user = db.relationship("User", back_populates="alerts")
     district = db.relationship("District")
+
+    def describe(self) -> str:
+        if self.kind == "aqi":
+            return f"Calidad del aire: {levels.AQI_LABELS[self.min_level].lower()} o peor"
+        return f"Polen de {levels.POLLEN_NAMES[self.pollen_type].lower()}: {levels.POLLEN_LABELS[self.min_level].lower()} o más"
 
 
 class ApiCache(db.Model):

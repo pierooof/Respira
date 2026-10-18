@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Entrar · Respira{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1 style="font-size:2rem">Entrar</h1>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <label>{{ form.email.label.text }} {{ form.email(autocomplete="email", inputmode="email", required=True) }}</label>
+    <label>{{ form.password.label.text }} {{ form.password(autocomplete="current-password", required=True) }}</label>
+    <button class="btn primary" type="submit">Entrar</button>
+  </form>
+  <p class="small muted">¿Sin cuenta? <a href="{{ url_for('auth.register') }}">Regístrate</a>. Cuenta de prueba: <code>demo@respira.app</code> / <code>demo1234</code></p>
+</div>
+{% endblock %}

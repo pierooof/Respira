@@ -1,0 +1,16 @@
+<form class="alert-form" method="post" action="{{ url_for('account.create_alert') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="district_id" value="{{ d.id }}">
+  <label>Avísame si mañana…
+    <select name="target">
+      <option value="aqi">la calidad del aire</option>
+      {% for kind, name in pollen_names.items() %}<option value="{{ kind }}">el polen de {{ name | lower }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>es al menos
+    <select name="min_level">
+      <option value="1">moderado</option><option value="2" selected>alto</option><option value="3">muy alto</option>
+    </select>
+  </label>
+  <button class="btn primary" type="submit">Crear aviso</button>
+</form>

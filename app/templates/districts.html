@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Barrios · Respira{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">Todos los distritos</p>
+  <h1>Elige tu barrio</h1>
+</section>
+<ul class="district-grid">
+  {% for it in items %}
+  <li>
+    <a class="district-card" href="{{ url_for('main.district', slug=it.d.slug) }}" style="--c: {{ it.aqi.color }}">
+      <span class="dot"></span>
+      <span class="name">{{ it.d.name }}</span>
+      <span class="val">{{ it.cur.eaqi if it.cur and it.cur.eaqi is not none else '—' }}</span>
+      <span class="lab">{{ it.aqi.label }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

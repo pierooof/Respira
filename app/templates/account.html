@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta · Respira{% endblock %}
+{% block content %}
+<section class="page-head"><p class="eyebrow">Mi cuenta</p><h1 style="font-size:2.2rem">{{ current_user.email }}</h1></section>
+
+<section class="panel">
+  <h2>Barrios favoritos</h2>
+  {% if favs %}
+  <ul class="district-grid">
+    {% for f in favs %}
+    <li><a class="district-card" href="{{ url_for('main.district', slug=f.d.slug) }}" style="--c: {{ f.aqi.color }}">
+      <span class="dot"></span><span class="name">{{ f.d.name }}</span>
+      <span class="val">{{ f.eaqi if f.eaqi is not none else '—' }}</span><span class="lab">{{ f.aqi.label }}</span></a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">Aún no tienes favoritos. Abre un <a href="{{ url_for('main.districts') }}">barrio</a> y pulsa «Añadir a favoritos».</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2>Avisos</h2>
+  {% if alerts %}
+  <ul class="alert-list">
+    {% for a in alerts %}
+    <li><span><strong>{{ a.district.name }}</strong> · {{ a.describe() }}</span>
+      <form method="post" action="{{ url_for('account.delete_alert', alert_id=a.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link" type="submit">Quitar</button></form></li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">Sin avisos. Créalos desde la ficha de cada barrio.</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>Telegram</h2>
+  {% if current_user.telegram_chat_id %}
+    <p>✅ Cuenta vinculada. Recibirás aquí tus avisos.</p>
+    <form method="post" action="{{ url_for('account.telegram_unlink') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">Desvincular</button></form>
+  {% elif not bot_enabled %}
+    <p class="muted">El bot de Telegram no está configurado en este servidor.</p>
+  {% elif code %}
+    <p>Abre {% if bot_url %}<a href="{{ bot_url }}" rel="noopener">el bot</a>{% else %}el bot{% endif %} y envíale:</p>
+    <p><code class="code">/vincular {{ code }}</code></p>
+    <p class="small muted">El código es de un solo uso y caduca en 15 minutos. Recarga esta página cuando lo hayas enviado.</p>
+  {% else %}
+    <p class="muted">Vincula tu cuenta para recibir los avisos en Telegram.</p>
+    <form method="post" action="{{ url_for('account.telegram_code') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn primary" type="submit">Generar código</button></form>
+  {% endif %}
+</section>
+{% endblock %}
