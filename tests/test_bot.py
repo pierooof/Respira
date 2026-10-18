@@ -49,17 +49,3 @@ def test_bot_link_status_unlink(app, monkeypatch):
     db.session.refresh(user)
     assert user.telegram_chat_id is None
 
-
-def test_probar_sends_sample_pollen_alert(app, monkeypatch):
-    app.config["TELEGRAM_TOKEN"] = "123456:TEST"
-    sent = []
-    monkeypatch.setattr(worker_bot.alerts, "send_telegram", lambda token, chat, text: sent.append((token, chat, text)) or True)
-    application = worker_bot.build(app)
-    assert "no has vinculado" in _call(application, "probar", 9)[0].lower()
-    user = User.query.filter_by(email=DEMO_EMAIL).one()
-    telegram_link.consume_code(telegram_link.create_code(user), 9)
-    assert _call(application, "probar", 9) == []  # el aviso llega por el sender, no como respuesta
-    token, chat, text = sent[0]
-    assert chat == 9 and "PRUEBA" in text and "gramíneas" in text and "Ciutat Vella" in text
-    monkeypatch.setattr(worker_bot.alerts, "send_telegram", lambda *a: False)
-    assert "No se pudo enviar" in _call(application, "probar", 9)[0]

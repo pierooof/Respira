@@ -16,3 +16,10 @@ def register(app):
         from worker.jobs import send_alerts
         send_alerts(app)
         click.echo("Avisos procesados.")
+
+    @app.cli.command("simulate-alert")
+    @click.option("--email", default=None, help="Usuario destino (por defecto, el primero con Telegram vinculado)")
+    def simulate_alert_cmd(email):
+        """Envía un aviso de polen simulado «para mañana» (prueba puntual de entrega por Telegram)."""
+        from worker.jobs import simulate_alert
+        click.echo(simulate_alert(app, email))

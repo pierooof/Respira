@@ -1,8 +1,10 @@
 """Tareas programadas. Cada una abre su propio contexto de aplicación."""
 import logging
 import time
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
-from app.models import District, Reading
+from app.models import Alert, District, Reading, User
 from app.services import air, alerts, openmeteo
 
 log = logging.getLogger("worker")
@@ -57,3 +59,33 @@ def wait_for_schema(app, timeout: int = 300):
                 pass
         time.sleep(10)
     return False
+
+
+def simulate_alert(app, email: str | None = None) -> str:
+    """Envía UN aviso de polen simulado («mañana, gramíneas muy altas») a un usuario con Telegram vinculado.
+
+    No guarda nada en la base de datos (el aviso es transitorio), así que no interfiere con los avisos reales.
+    """
+    with app.app_context():
+        token = app.config["TELEGRAM_TOKEN"]
+        if not token:
+            return "Falta TELEGRAM_TOKEN en este servicio."
+        query = User.query.filter(User.telegram_chat_id.isnot(None))
+        user = (query.filter_by(email=email) if email else query).first()
+        if user is None:
+            return "No hay ningún usuario con Telegram vinculado."
+        district = user.favorites[0].district if user.favorites else District.query.order_by(District.id).first()
+        tomorrow = datetime.now(ZoneInfo(openmeteo.TZ)).date() + timedelta(days=1)
+        # previsión sintética: mañana, 200 granos/m³ de gramíneas (nivel «muy alto»)
+        times = [f"{tomorrow.isoformat()}T{h:02d}:00" for h in range(24)]
+        hourly = {"time": times, **{k: [0.0] * 24 for k in ("eaqi", "aqi_pm10", "aqi_pm2_5", "aqi_no2", "aqi_o3",
+                                                              "pm10", "pm2_5", "no2", "o3", "olive", "birch", "alder", "mugwort", "ragweed")},
+                  "grass": [200.0] * 24}
+        day = air.summarize(hourly, list(range(24)))
+        alert = Alert(user_id=user.id, district=district, kind="pollen", pollen_type="grass", min_level=2)  # sin session.add
+        level = alerts.alert_level(alert, day)
+        if level is None or level < alert.min_level:
+            return "La simulación no alcanza el umbral (error de lógica)."
+        text = "🧪 SIMULACIÓN (solo una vez)\n" + alerts.message_for(alert, level, tomorrow, app.config["APP_URL"])
+        ok = alerts.send_telegram(token, user.telegram_chat_id, text)
+        return f"Aviso simulado {'enviado' if ok else 'NO enviado'} a {user.email} ({district.name})."

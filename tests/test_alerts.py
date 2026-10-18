@@ -43,3 +43,19 @@ def test_no_alert_below_threshold_or_unlinked_or_failed_send(app):
     User.query.filter_by(email=DEMO_EMAIL).one().telegram_chat_id = None
     db.session.commit()
     assert alerts.run_alerts(_forecast("ciutat-vella", 80.0), lambda c, t: True, "u", NOW) == 0
+
+
+def test_simulate_alert_sends_once_without_persisting(app, monkeypatch):
+    from worker import jobs
+    sent = []
+    monkeypatch.setattr(jobs.alerts, "send_telegram", lambda token, chat, text: sent.append((chat, text)) or True)
+    assert "Falta TELEGRAM_TOKEN" in jobs.simulate_alert(app)
+    app.config["TELEGRAM_TOKEN"] = "1:T"
+    assert "No hay ningún usuario" in jobs.simulate_alert(app)
+    _setup()  # vincula al usuario demo (chat 42)
+    before = Alert.query.count()
+    assert "enviado" in jobs.simulate_alert(app, DEMO_EMAIL)
+    chat, text = sent[0]
+    assert chat == 42 and "SIMULACIÓN" in text and "gramíneas" in text and "muy alto" in text
+    assert Alert.query.count() == before  # nada persistido
+    assert all(a.last_notified_for is None for a in Alert.query.all())
