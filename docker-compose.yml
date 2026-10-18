@@ -1,0 +1,14 @@
+# MySQL 8 para desarrollo local: docker compose up -d
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: respira
+      MYSQL_USER: respira
+      MYSQL_PASSWORD: respira
+      MYSQL_ROOT_PASSWORD: root
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    ports: ["3306:3306"]
+    volumes: [dbdata:/var/lib/mysql]
+volumes:
+  dbdata:
