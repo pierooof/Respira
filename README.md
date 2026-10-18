@@ -81,17 +81,18 @@ El usuario demo tiene dos favoritos y un aviso de ejemplo. **En un despliegue p�
 Son **tres servicios** en un mismo proyecto: MySQL, `web` y `worker` (ambos desde este repositorio).
 
 1. **Sube el repo a GitHub.**
-2. En [railway.com](https://railway.com): **New Project → Deploy from GitHub repo** y elige el repositorio. Este será el servicio **web**; renómbralo `web`.
+2. En [railway.com](https://railway.com): **New Project → Deploy from GitHub repo** y elige el repositorio. Railway lee el `Procfile` y crea solo dos servicios, **`web`** y **`worker`**.
 3. **Añade MySQL**: *+ New → Database → Add MySQL*.
 4. **Variables del servicio `web`** (pestaña *Variables*). Referencia las de MySQL con la sintaxis `${{ ... }}` (cambia `MySQL` por el nombre real del servicio):
    - `MYSQL_URL` = `${{MySQL.MYSQL_URL}}`
    - `APP_ENV` = `production`
    - `APP_URL` = `https://respira.pierooof.dev`
    - `SECRET_KEY` = una cadena aleatoria larga (`python -c "import secrets; print(secrets.token_urlsafe(48))"`)
-   - `TRUSTED_PROXIES` = `1` (ver nota de proxies más abajo)
+   - `TRUSTED_PROXIES` = `2` (Cloudflare + Railway; ver nota de proxies más abajo)
    - `TELEGRAM_TOKEN` y `TELEGRAM_BOT_USERNAME`
 5. El servicio `web` usa `railway.json`: al arrancar ejecuta `flask db upgrade && flask seed` y luego gunicorn; el healthcheck es `/health`.
-6. **Crea el servicio worker**: *+ New → GitHub Repo* (el mismo repositorio) y renómbralo `worker`. En *Settings → Config-as-code* pon la ruta **`/railway.worker.json`** (arranca `python -m worker.main`, sin healthcheck ni dominio). Dale las **mismas variables** que a `web` (puedes usar *Shared Variables* o referencias `${{web.VARIABLE}}`).
+6. **Servicio `worker`** (ya creado por Railway): en *Settings → Config-as-code* pon la ruta **`/railway.worker.json`** (arranca `python -m worker.main`, sin healthcheck ni dominio; si no, usaría el `railway.json` del web). Dale las **mismas variables** que a `web` (*Raw Editor* → pegar). Usa **una sola réplica**.
+   > Railway marca Config-as-code como obsoleto (los ficheros siguen funcionando hasta el 2026-12-01). Después, define en cada servicio, en *Settings → Deploy*, el _Start Command_ (`Procfile`) y el _Healthcheck Path_ `/health` en `web`.
 7. **Genera un dominio** en `web` (*Settings → Networking → Generate Domain*) para comprobar que funciona, y después añade el dominio propio (siguiente sección).
 8. Comprueba: `https://<dominio>/health` devuelve `{"status":"ok"}` y en los logs del worker aparece `refresh: caché actualizada`.
 
@@ -111,6 +112,7 @@ Para servir la app en `respira.pierooof.dev` (dominio gestionado en Cloudflare):
 2. En Cloudflare: *pierooof.dev → DNS → Records → Add record*:
    - Tipo `CNAME`, nombre `respira`, destino = el valor que dio Railway.
    - Si Railway pide el `TXT` (p. ej. `_railway-verify.respira`), añádelo tal cual.
+   - Railway también ofrece "One-click DNS Setup" con Cloudflare (pide permisos OAuth); aquí se hizo a mano.
    - Estado del proxy: **Proxied (nube naranja)** funciona; si la verificación tarda, ponlo en _DNS only_ (gris) hasta que Railway marque el dominio como verificado y vuelve a activarlo.
 3. En Cloudflare → *SSL/TLS → Overview*: modo **Full** (o *Full (strict)*). No uses *Flexible* (provocaría bucles de redirección).
 4. Espera a que Railway emita el certificado (unos minutos) y abre <https://respira.pierooof.dev>.
