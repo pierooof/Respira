@@ -15,6 +15,9 @@ from worker import bot, jobs
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("worker")
+# httpx registra la URL completa en INFO y la de Telegram lleva el token del bot: nunca debe llegar a los logs.
+for noisy in ("httpx", "httpcore"):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
 def main():
