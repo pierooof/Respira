@@ -31,6 +31,13 @@ def message_for(alert: Alert, level: int, tomorrow, app_url: str) -> str:
             f"Más detalle: {app_url}/barrio/{d.slug}")
 
 
+def sample_pollen_message(district, tomorrow, app_url: str) -> str:
+    """Aviso de ejemplo (nivel «alto» de gramíneas) para comprobar la entrega por Telegram."""
+    return (f"🧪 PRUEBA · Mañana {WEEKDAYS[tomorrow.weekday()]} {tomorrow.day}: el polen de gramíneas será alto en {district.name}.\n"
+            f"Así te avisaré cuando se cumpla uno de tus avisos reales.\n"
+            f"Más detalle: {app_url}/barrio/{district.slug}")
+
+
 def send_telegram(token: str, chat_id: int, text: str) -> bool:
     try:
         r = httpx.post(f"https://api.telegram.org/bot{token}/sendMessage",

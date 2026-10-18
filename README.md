@@ -102,7 +102,7 @@ Las migraciones se aplican en el arranque del servicio `web`; el worker espera a
 
 1. En Telegram habla con **@BotFather** → `/newbot` y copia el token a `TELEGRAM_TOKEN`; el usuario del bot a `TELEGRAM_BOT_USERNAME`.
 2. El worker usa _long polling_: no hace falta webhook ni abrir puertos. **Ejecuta una sola instancia del worker.**
-3. Flujo del usuario: web → *Mi cuenta* → *Generar código* → enviar `/vincular CÓDIGO` al bot. Comandos: `/start`, `/vincular`, `/estado`, `/desvincular`. El worker envía a las 19:00 (hora de Madrid) los avisos cuya condición se cumple **para el día siguiente**, una vez por aviso y día.
+3. Flujo del usuario: web → *Mi cuenta* → *Generar código* → enviar `/vincular CÓDIGO` al bot. Comandos: `/start`, `/vincular`, `/estado`, `/probar` (envía un aviso de polen de ejemplo), `/desvincular`. El worker envía a las 19:00 (hora de Madrid) los avisos cuya condición se cumple **para el día siguiente**, una vez por aviso y día.
 
 ## Conectar un subdominio de Cloudflare a Railway
 
