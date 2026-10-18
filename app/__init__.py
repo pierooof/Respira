@@ -6,13 +6,13 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .extensions import csrf, db, login_manager, migrate
 
-# CSP: scripts propios + CDN de Leaflet/Chart.js; teselas del mapa de CARTO/OSM.
+# CSP: scripts propios + CDN de Leaflet/Chart.js; teselas del mapa de OpenStreetMap.
 CSP = (
     "default-src 'self'; "
     "script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; "
     "style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; "
     "font-src 'self' https://fonts.gstatic.com; "
-    "img-src 'self' data: https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com; "
+    "img-src 'self' data: https://tile.openstreetmap.org https://unpkg.com; "
     "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 )
 

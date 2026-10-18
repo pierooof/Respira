@@ -40,6 +40,7 @@ button.link { background: none; border: 0; color: var(--ink-2); font: inherit; c
 
 .map-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 20px; margin-bottom: 48px; }
 #map { height: min(620px, 70vh); border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper-2); z-index: 0; }
+.leaflet-tile-pane { filter: grayscale(.65) sepia(.25) brightness(1.03); }
 .rank { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-height: min(620px, 70vh); overflow: auto; }
 .rank-list { list-style: none; margin: 10px 0; padding: 0; }
 .rank-list a { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 10px; padding: 7px 4px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); }

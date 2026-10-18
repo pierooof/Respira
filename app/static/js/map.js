@@ -1,8 +1,8 @@
 (function () {
   const el = document.getElementById("map");
   const map = L.map(el, { scrollWheelZoom: false }).setView([39.4699, -0.3763], 12);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: "© OpenStreetMap · © CARTO", maxZoom: 18, subdomains: "abcd",
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>", maxZoom: 18,
   }).addTo(map);
 
   const status = document.getElementById("map-status");
