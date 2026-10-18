@@ -38,6 +38,9 @@ def create_app(overrides: dict | None = None) -> Flask:
     if overrides:
         app.config.update(overrides)
 
+    if app.config["IS_PROD"] and app.config["SECRET_KEY"] == "dev-only-secret":
+        raise RuntimeError("Define SECRET_KEY en producción.")
+
     n = app.config["TRUSTED_PROXIES"]
     if n > 0:
         # x_proto/x_host=1: nos fiamos del último salto (Railway), que sí informa del esquema real;
