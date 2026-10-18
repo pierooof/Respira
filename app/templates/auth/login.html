@@ -9,6 +9,6 @@
     <label>{{ form.password.label.text }} {{ form.password(autocomplete="current-password", required=True) }}</label>
     <button class="btn primary" type="submit">Entrar</button>
   </form>
-  <p class="small muted">¿Sin cuenta? <a href="{{ url_for('auth.register') }}">Regístrate</a>. Cuenta de prueba: <code>demo@respira.app</code> / <code>demo1234</code></p>
+  <p class="small muted">¿Sin cuenta? <a href="{{ url_for('auth.register') }}">Regístrate</a>.{% if config.DEMO_ENABLED %} Cuenta de prueba: <code>demo@respira.app</code> / <code>demo1234</code>{% endif %}</p>
 </div>
 {% endblock %}

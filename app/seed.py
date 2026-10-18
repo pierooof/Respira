@@ -1,4 +1,6 @@
 """Datos iniciales: distritos de Valencia (centro aproximado) y usuario demo. Idempotente."""
+from flask import current_app
+
 from .extensions import db
 from .models import Alert, District, Favorite, User
 
@@ -37,7 +39,7 @@ def seed():
             d.name, d.lat, d.lon = name, lat, lon
     db.session.flush()
 
-    if User.query.filter_by(email=DEMO_EMAIL).first() is None:
+    if current_app.config["DEMO_ENABLED"] and User.query.filter_by(email=DEMO_EMAIL).first() is None:
         user = User(email=DEMO_EMAIL)
         user.set_password(DEMO_PASSWORD)
         db.session.add(user)
@@ -49,3 +51,13 @@ def seed():
         db.session.add(Alert(user_id=user.id, district_id=d.id, kind="pollen",
                              pollen_type="grass", min_level=2))
     db.session.commit()
+
+
+def remove_demo() -> bool:
+    """Borra la cuenta demo con sus favoritos y avisos. True si existía."""
+    user = User.query.filter_by(email=DEMO_EMAIL).first()
+    if user is None:
+        return False
+    db.session.delete(user)  # favoritos y avisos caen en cascada
+    db.session.commit()
+    return True

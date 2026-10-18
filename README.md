@@ -60,7 +60,7 @@ La app carga solo variables de entorno (no lee `.env` por sí misma). Con `APP_E
 |---|---|
 | `demo@respira.app` | `demo1234` |
 
-El usuario demo tiene dos favoritos y un aviso de ejemplo. **En un despliegue público cambia o elimina esta cuenta si no quieres que sea accesible.**
+El usuario demo tiene dos favoritos y un aviso de ejemplo. **Para quitarla de un despliegue público:** pon `SEED_DEMO_USER=false` (si no, `flask seed` la recrea en cada arranque) y ejecuta una vez `flask --app wsgi remove-demo` (por ejemplo en la consola de Railway). El texto de la pantalla de login con las credenciales también desaparece.
 
 ## Variables de entorno
 
@@ -74,6 +74,7 @@ El usuario demo tiene dos favoritos y un aviso de ejemplo. **En un despliegue p�
 | `MYSQL_URL` | `mysql://usuario:clave@host:puerto/bd`, o bien `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE` |
 | `TELEGRAM_TOKEN` | Token del bot (de @BotFather). **Solo en el worker**; sin él, bot y avisos quedan desactivados |
 | `TELEGRAM_BOT_USERNAME` | Usuario del bot sin `@`. **En la web** (activa «Generar código» y el enlace al bot); no es secreto |
+| `SEED_DEMO_USER` | `true` (por defecto) crea la cuenta demo en el seed; `false` la desactiva |
 | `CACHE_TTL_SECONDS` / `REFRESH_MINUTES` / `ALERT_HOUR` | Caché (3600), refresco del worker (60) y hora de los avisos (19) |
 
 ## Despliegue en Railway (paso a paso)

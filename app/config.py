@@ -41,6 +41,9 @@ class Config:
     REMEMBER_COOKIE_SECURE = IS_PROD
     PREFERRED_URL_SCHEME = "https" if IS_PROD else "http"
 
+    # Crear/mostrar la cuenta demo (seed). En producción pública: SEED_DEMO_USER=false
+    DEMO_ENABLED = os.getenv("SEED_DEMO_USER", "true").lower() not in ("0", "false", "no")
+
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
     TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME", "")
     CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "3600"))

@@ -137,3 +137,15 @@ def test_account_offers_telegram_code_with_only_bot_username(client, app):
     assert "Generar código" in page and "no está configurado" not in page
     r = client.post("/telegram/codigo", follow_redirects=True)
     assert "/vincular " in r.get_data(as_text=True) and "t.me/respira_test_bot" in r.get_data(as_text=True)
+
+
+def test_demo_can_be_disabled_and_removed(client, app):
+    from app.seed import remove_demo, seed
+    assert DEMO_EMAIL in client.get("/entrar").get_data(as_text=True)
+    assert remove_demo() is True and remove_demo() is False
+    assert Alert.query.count() == 0  # sus avisos cayeron con la cuenta
+    app.config["DEMO_ENABLED"] = False
+    seed()  # el arranque de producción vuelve a ejecutar el seed...
+    assert User.query.filter_by(email=DEMO_EMAIL).first() is None  # ...y no la recrea
+    assert DEMO_EMAIL not in client.get("/entrar").get_data(as_text=True)
+    assert District.query.count() == 19
