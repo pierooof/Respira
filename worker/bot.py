@@ -1,7 +1,9 @@
 """Bot de Telegram: /start, /vincular <código>, /estado y /desvincular."""
 import asyncio
+import logging
 
 from telegram import Update
+from telegram.error import Conflict
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app.extensions import db
@@ -65,7 +67,15 @@ def build(app) -> Application:
         ok = await asyncio.to_thread(desvincular_sync, update.effective_chat.id)
         await update.message.reply_text("Cuenta desvinculada." if ok else "No había ninguna cuenta vinculada.")
 
+    async def on_error(update, ctx: ContextTypes.DEFAULT_TYPE):
+        # Conflict: dos instancias hacen polling a la vez (solapamiento de un redespliegue); PTB reintenta solo.
+        if isinstance(ctx.error, Conflict):
+            logging.getLogger("worker").warning("Telegram Conflict: otra instancia del bot está activa (transitorio en redespliegues)")
+        else:
+            logging.getLogger("worker").error("Error en el bot: %s", ctx.error)
+
     application = Application.builder().token(token).build()
+    application.add_error_handler(on_error)
     for name, fn in (("start", start), ("vincular", vincular), ("estado", estado), ("desvincular", desvincular)):
         application.add_handler(CommandHandler(name, fn))
     return application
