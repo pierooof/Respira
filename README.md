@@ -4,11 +4,15 @@
 
 🌐 Demo: <https://respira.pierooof.dev>
 
-> **Capturas** — _(deja aquí tus imágenes en `docs/` y enlázalas)_
->
-> | Mapa | Ficha de barrio | Móvil |
-> |---|---|---|
-> | `docs/mapa.png` _(pendiente)_ | `docs/ficha.png` _(pendiente)_ | `docs/movil.png` _(pendiente)_ |
+## Capturas
+
+| Mapa por distrito | Ficha de barrio |
+|---|---|
+| ![Mapa de calidad del aire de Valencia](docs/mapa.jpg) | ![Ficha de barrio: EAQI, contaminantes y polen](docs/ficha.jpg) |
+
+| Previsión y evolución | Móvil |
+|---|---|
+| ![Previsión de 5 días, polen por tipo e histórico](docs/prevision.jpg) | <img src="docs/movil-mapa.jpg" alt="Mapa en móvil" width="170"> <img src="docs/movil-ficha.jpg" alt="Ficha en móvil" width="170"> |
 
 ## Stack
 
