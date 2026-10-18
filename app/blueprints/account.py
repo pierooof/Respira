@@ -12,6 +12,11 @@ MAX_ALERTS = 20
 AQI_FROM_FORM = {1: 2, 2: 3, 3: 4}
 
 
+def bot_enabled() -> bool:
+    """La web solo necesita el usuario del bot (público); el token secreto vive únicamente en el worker."""
+    return bool(current_app.config["TELEGRAM_BOT_USERNAME"] or current_app.config["TELEGRAM_TOKEN"])
+
+
 @bp.get("/cuenta")
 @login_required
 def account():
@@ -23,7 +28,7 @@ def account():
     username = current_app.config["TELEGRAM_BOT_USERNAME"]
     return render_template(
         "account.html", favs=favs, alerts=current_user.alerts,
-        bot_enabled=bool(current_app.config["TELEGRAM_TOKEN"]),
+        bot_enabled=bot_enabled(),
         bot_url=f"https://t.me/{username}" if username else None,
         code=request.args.get("code"),
     )
@@ -79,7 +84,7 @@ def delete_alert(alert_id):
 @bp.post("/telegram/codigo")
 @login_required
 def telegram_code():
-    if not current_app.config["TELEGRAM_TOKEN"]:
+    if not bot_enabled():
         abort(404)
     code = telegram_link.create_code(current_user)
     return redirect(url_for("account.account", code=code))

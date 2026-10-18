@@ -127,3 +127,13 @@ def test_proxy_headers_and_prod_security():
         assert c.get("/health").status_code == 200  # el healthcheck nunca redirige
         r = c.get("/_ip", headers={"X-Forwarded-Proto": "https", "X-Forwarded-For": "9.9.9.9, 10.0.0.1"})
         assert r.get_data(as_text=True).startswith("9.9.9.9")  # sin CF: segundo salto de confianza
+
+
+def test_account_offers_telegram_code_with_only_bot_username(client, app):
+    login(client)
+    assert "no está configurado" in client.get("/cuenta").get_data(as_text=True)
+    app.config["TELEGRAM_BOT_USERNAME"] = "respira_test_bot"
+    page = client.get("/cuenta").get_data(as_text=True)
+    assert "Generar código" in page and "no está configurado" not in page
+    r = client.post("/telegram/codigo", follow_redirects=True)
+    assert "/vincular " in r.get_data(as_text=True) and "t.me/respira_test_bot" in r.get_data(as_text=True)

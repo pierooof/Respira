@@ -72,8 +72,8 @@ El usuario demo tiene dos favoritos y un aviso de ejemplo. **En un despliegue p�
 | `PORT` | Puerto (Railway lo inyecta); la app escucha en `0.0.0.0` |
 | `TRUSTED_PROXIES` | Nº de proxies de confianza (por defecto `1`). Si existe `CF-Connecting-IP`, se usa como IP real |
 | `MYSQL_URL` | `mysql://usuario:clave@host:puerto/bd`, o bien `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE` |
-| `TELEGRAM_TOKEN` | Token del bot (de @BotFather). Sin él, bot y avisos quedan desactivados |
-| `TELEGRAM_BOT_USERNAME` | Usuario del bot sin `@` (para el enlace de la web) |
+| `TELEGRAM_TOKEN` | Token del bot (de @BotFather). **Solo en el worker**; sin él, bot y avisos quedan desactivados |
+| `TELEGRAM_BOT_USERNAME` | Usuario del bot sin `@`. **En la web** (activa «Generar código» y el enlace al bot); no es secreto |
 | `CACHE_TTL_SECONDS` / `REFRESH_MINUTES` / `ALERT_HOUR` | Caché (3600), refresco del worker (60) y hora de los avisos (19) |
 
 ## Despliegue en Railway (paso a paso)
