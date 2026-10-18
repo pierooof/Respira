@@ -10,3 +10,4 @@ httpx==0.28.*
 APScheduler>=3.10,<4
 python-telegram-bot==21.*
 gunicorn>=22
+tzdata

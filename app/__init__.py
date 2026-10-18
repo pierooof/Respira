@@ -46,6 +46,7 @@ def create_app(overrides: dict | None = None) -> Flask:
     migrate.init_app(app, db)
     csrf.init_app(app)
     login_manager.init_app(app)
+    from . import models  # noqa: F401  (registra las tablas para las migraciones)
 
     from .blueprints import register_blueprints
     register_blueprints(app)
